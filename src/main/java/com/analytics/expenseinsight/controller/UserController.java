@@ -27,23 +27,23 @@ public class UserController {
         return userService.createUser(user);
     }
 
-
     @GetMapping("allusers")
     public ResponseEntity<List<User>> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    @GetMapping("read/{userId}")
+    @GetMapping("/read/{userId}")
     public ResponseEntity<Optional<User>> getUserById(@PathVariable int userId) {
         return userService.getUserById(userId);
     }
 
-    @PutMapping("update/{userId}")
+    @PutMapping("/update/{userId}")
+
     public ResponseEntity<User> updateUserById(@RequestBody User user, @PathVariable int userId) {
         return userService.updateUserById(userId, user);
     }
 
-    @DeleteMapping("delete/{userId}")
+    @DeleteMapping("/delete/{userId}")
     public ResponseEntity<String> deleteUserById(@PathVariable int userId) {
         return userService.deleteUserById(userId);
     }
