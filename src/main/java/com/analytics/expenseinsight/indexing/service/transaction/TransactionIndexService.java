@@ -1,8 +1,11 @@
-package com.analytics.expenseinsight.indexing.service;
+package com.analytics.expenseinsight.indexing.service.transaction;
 
+import com.analytics.expenseinsight.indexing.helper.SearchConstants;
 import com.analytics.expenseinsight.indexing.model.TransactionIndexDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
+
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
@@ -23,17 +26,22 @@ public class TransactionIndexService {
     private final RestHighLevelClient client;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public void indexTransaction(TransactionIndexDTO dto) throws IOException {
-        String indexName = "transactions_user_" + dto.getId();
+    private boolean isIndexExist(String stIndexName) throws IOException {
+        return client.indices().exists(new GetIndexRequest(stIndexName), RequestOptions.DEFAULT);
+
+    }
+
+    public void addTransaction(TransactionIndexDTO dto) throws IOException {
+        String stIndexName = SearchConstants.TRANSACTION_INDEX_NAME_PREFIX + dto.getId();
 
         // Check and create index if missing
-        if (!client.indices().exists(new GetIndexRequest(indexName), RequestOptions.DEFAULT)) {
-            client.indices().create(new CreateIndexRequest(indexName), RequestOptions.DEFAULT);
+        if (!isIndexExist(stIndexName)) {
+            client.indices().create(new CreateIndexRequest(stIndexName), RequestOptions.DEFAULT);
         }
 
         Map<String, Object> docMap = mapper.convertValue(dto, Map.class);
 
-        IndexRequest indexRequest = new IndexRequest(indexName)
+        IndexRequest indexRequest = new IndexRequest(stIndexName)
                 .id(String.valueOf(dto.getId()))
                 .source(docMap);
 
