@@ -1,11 +1,14 @@
 package com.analytics.expenseinsight.restapi.controller;
 
+import com.analytics.expenseinsight.indexing.model.TransactionIndexDTO;
+import com.analytics.expenseinsight.indexing.service.transaction.TransactionIndexService;
 import com.analytics.expenseinsight.restapi.model.Transaction;
 import com.analytics.expenseinsight.restapi.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,9 +18,13 @@ public class TransactionController {
 
     @Autowired
     TransactionService transactionService;
+    @Autowired
+    TransactionIndexService transactionIndexService;
 
     @PostMapping("create")
-    public ResponseEntity<String> createTransaction(@RequestBody Transaction transaction) {
+    public ResponseEntity<String> createTransaction(@RequestBody Transaction transaction) throws IOException {
+        TransactionIndexDTO dto = new TransactionIndexDTO(transaction);
+        transactionIndexService.addTransaction(dto);
         return transactionService.createTransaction(transaction);
     }
 

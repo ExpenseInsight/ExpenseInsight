@@ -19,7 +19,9 @@
 	<description>Analytics on Human Data</description>
 
 	<properties>
-		<java.version>21</java.version> <!-- Recommend Java 17 or 21 -->
+		<java.version>21</java.version>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
 	</properties>
 
 	<dependencies>

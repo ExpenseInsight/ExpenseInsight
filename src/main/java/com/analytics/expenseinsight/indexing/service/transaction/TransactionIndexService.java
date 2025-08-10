@@ -28,7 +28,6 @@ public class TransactionIndexService {
 
     private boolean isIndexExist(String stIndexName) throws IOException {
         return client.indices().exists(new GetIndexRequest(stIndexName), RequestOptions.DEFAULT);
-
     }
 
     public void addTransaction(TransactionIndexDTO dto) throws IOException {
@@ -65,6 +64,10 @@ public class TransactionIndexService {
     public void deleteTransaction(String indexName, String id) throws IOException {
         DeleteRequest deleteRequest = new DeleteRequest(indexName, id);
         client.delete(deleteRequest, RequestOptions.DEFAULT);
+    }
+
+    public static String getIndexNameFromId(int userId){
+        return SearchConstants.TRANSACTION_INDEX_NAME_PREFIX + userId;
     }
 
 }

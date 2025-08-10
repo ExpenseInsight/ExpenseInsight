@@ -7,7 +7,12 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tag")
+@Table(
+        name = "tag",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "parent_tag_id", "tagName"})
+        }
+)
 @Data
 public class Tag {
 

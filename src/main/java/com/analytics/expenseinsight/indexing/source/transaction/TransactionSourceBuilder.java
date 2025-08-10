@@ -4,9 +4,11 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class TransactionSourceBuilder {
 
     /**
@@ -42,7 +44,7 @@ public class TransactionSourceBuilder {
     }
 
     public SearchSourceBuilder buildSource(QueryBuilder query) {
-        return new SearchSourceBuilder()
-                .query(query);
+        return new SearchSourceBuilder().query(query);
     }
+
 }

@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,8 +25,8 @@ public class FilterService {
 
     public ResponseEntity<String> createFilter(Filter filter) {
         try {
-            filter.setCreatedAt(LocalDateTime.now());
-            filter.setUpdatedAt(LocalDateTime.now());
+            filter.setCreatedAt(new Date());
+            filter.setUpdatedAt(new Date());
             filterRepository.save(filter);
             return new ResponseEntity<>("Filter saved", HttpStatus.CREATED);
         } catch (Exception e) {
@@ -56,7 +57,7 @@ public class FilterService {
         existingFilter.setEndDate(newFilter.getEndDate());
         existingFilter.setIncludeTags(newFilter.getIncludeTags());
         existingFilter.setExcludeTags(newFilter.getExcludeTags());
-        existingFilter.setUpdatedAt(LocalDateTime.now());
+        existingFilter.setUpdatedAt(new Date());
 
         Filter saved = filterRepository.save(existingFilter);
         return new ResponseEntity<>(saved, HttpStatus.OK);

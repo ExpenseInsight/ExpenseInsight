@@ -8,7 +8,12 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user")
+@Table(
+        name = "user",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"email"}),
+        }
+)
 @Data
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {

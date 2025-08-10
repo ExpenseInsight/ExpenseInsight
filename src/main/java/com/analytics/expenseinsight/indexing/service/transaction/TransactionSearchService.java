@@ -59,10 +59,10 @@ public class TransactionSearchService {
         return executeSearch(indexName, sourceBuilder.buildSource(query));
     }
 
-    public SearchResponse combinedSearch(String indexName, String tag, String paymentType,
+    public SearchResponse combinedSearch(String indexName, List<String> tags, String paymentType,
                                          String startDate, String endDate,
                                          double minAmount, double maxAmount) throws IOException {
-        QueryBuilder query = queryBuilder.combinedSearch(tag, paymentType,
+        QueryBuilder query = queryBuilder.combinedSearch(tags, paymentType,
                 BigDecimal.valueOf(minAmount), BigDecimal.valueOf(maxAmount),
                 startDate, endDate);
         return executeSearch(indexName, sourceBuilder.buildSource(query));

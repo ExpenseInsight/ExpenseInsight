@@ -5,7 +5,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "transaction_tags")
+@Table(
+        name = "transaction_tags",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"transaction_id","tag_id"})
+)
 @Data
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class TransactionTag {

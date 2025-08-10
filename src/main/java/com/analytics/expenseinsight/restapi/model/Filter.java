@@ -3,11 +3,16 @@ package com.analytics.expenseinsight.restapi.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "filters")
+@Table(
+        name = "filters",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id","filterName"})
+        }
+)
 @Data
 public class Filter {
 
@@ -21,19 +26,31 @@ public class Filter {
 
     private String filterName;
 
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private Date startDate;
+    private Date endDate;
 
-    @ElementCollection
-    @CollectionTable(name = "filter_include_tags", joinColumns = @JoinColumn(name = "filter_id"))
-    @Column(name = "tag_id")
-    private List<Integer> includeTags;
+    @ManyToMany
+    @JoinTable(
+            name = "filter_include_tags",
+            joinColumns = @JoinColumn(name = "filter_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> includeTags;
 
-    @ElementCollection
-    @CollectionTable(name = "filter_exclude_tags", joinColumns = @JoinColumn(name = "filter_id"))
-    @Column(name = "tag_id")
-    private List<Integer> excludeTags;
+    @ManyToMany
+    @JoinTable(
+            name = "filter_exclude_tags",
+            joinColumns = @JoinColumn(name = "filter_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> excludeTags;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+    private Date createdAt;
+    private Date updatedAt;
+
+    private String paymentType;
+
+    private double minAmount;
+    private  double maxAmount;
 }

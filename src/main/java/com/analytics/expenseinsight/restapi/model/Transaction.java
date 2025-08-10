@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,7 +28,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "transaction")
+@Table(
+        name = "transaction",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "paymentId"})
+        }
+)
 @Data
 public class Transaction {
 
@@ -87,6 +93,6 @@ public class Transaction {
             joinColumns = @JoinColumn(name = "transaction_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private List<String> tags = new ArrayList<>();
+    private List<Tag> tags = new ArrayList<>();
 
 }

@@ -6,6 +6,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Component
 public class TransactionQueryBuilder {
@@ -49,10 +50,13 @@ public class TransactionQueryBuilder {
                 .field("tags");
     }
 
-    public QueryBuilder combinedSearch(String tag, String paymentType, BigDecimal minAmount, BigDecimal maxAmount, String startDate, String endDate) {
+    public QueryBuilder combinedSearch(List<String> tags, String paymentType, BigDecimal minAmount, BigDecimal maxAmount, String startDate, String endDate) {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
-        if (tag != null) boolQuery.must(matchByTag(tag));
+        for (String tag : tags) {
+            if (tag != null) boolQuery.must(matchByTag(tag));
+        }
+
         if (paymentType != null) boolQuery.must(matchByPaymentType(paymentType));
         if (minAmount != null && maxAmount != null) boolQuery.filter(filterByAmountRange(minAmount, maxAmount));
         if (startDate != null && endDate != null) boolQuery.filter(filterByDateRange(startDate, endDate));
