@@ -1,73 +1,94 @@
 package com.analytics.expenseinsight.indexing.service.transaction;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch.core.DeleteRequest;
+import co.elastic.clients.elasticsearch.core.GetResponse;
+import co.elastic.clients.elasticsearch.core.IndexRequest;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
+import co.elastic.clients.elasticsearch.indices.ExistsRequest;
+import co.elastic.clients.transport.endpoints.BooleanResponse;
+
 import com.analytics.expenseinsight.indexing.helper.SearchConstants;
 import com.analytics.expenseinsight.indexing.model.TransactionIndexDTO;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.GetIndexRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class TransactionIndexService {
-    private final RestHighLevelClient client;
-    private final ObjectMapper mapper = new ObjectMapper();
 
-    private boolean isIndexExist(String stIndexName) throws IOException {
-        return client.indices().exists(new GetIndexRequest(stIndexName), RequestOptions.DEFAULT);
+    @Autowired
+    private final ElasticsearchClient client;
+
+    private boolean isIndexExist(String indexName) throws IOException {
+        BooleanResponse exists = client.indices().exists(ExistsRequest.of(e -> e.index(indexName)));
+        return exists.value();
     }
 
-    public void addTransaction(TransactionIndexDTO dto) throws IOException {
-        String stIndexName = SearchConstants.TRANSACTION_INDEX_NAME_PREFIX + dto.getId();
+    public void addTransaction(TransactionIndexDTO dto) {
+        String indexName = SearchConstants.TRANSACTION_INDEX_NAME_PREFIX + dto.getUserId();
 
-        // Check and create index if missing
-        if (!isIndexExist(stIndexName)) {
-            client.indices().create(new CreateIndexRequest(stIndexName), RequestOptions.DEFAULT);
+        try {
+            // Create index if not exists
+            if (!isIndexExist(indexName)) {
+                client.indices().create(CreateIndexRequest.of(c -> c.index(indexName)));
+            }
+
+            client.index(IndexRequest.of(i -> i
+                    .index(indexName)
+                    .id(String.valueOf(dto.getId()))
+                    .document(dto)
+            ));
+        } catch (ElasticsearchException | IOException e) {
+            throw new RuntimeException("Unable to add transaction to index: " + e.getMessage(), e);
         }
-
-        Map<String, Object> docMap = mapper.convertValue(dto, Map.class);
-
-        IndexRequest indexRequest = new IndexRequest(stIndexName)
-                .id(String.valueOf(dto.getId()))
-                .source(docMap);
-
-        client.index(indexRequest, RequestOptions.DEFAULT);
     }
 
     // READ (Get by ID)
-    public Map<String, Object> getTransactionById(String indexName, String id) throws IOException {
-        GetRequest getRequest = new GetRequest(indexName, id);
-        GetResponse response = client.get(getRequest, RequestOptions.DEFAULT);
-        return response.isExists() ? response.getSourceAsMap() : null;
+    public TransactionIndexDTO getTransactionById(String indexName, String id) {
+        try {
+            GetResponse<TransactionIndexDTO> response = client.get(g -> g
+                    .index(indexName)
+                    .id(id), TransactionIndexDTO.class);
+
+            return response.found() ? response.source() : null;
+        } catch (ElasticsearchException | IOException e) {
+            throw new RuntimeException("Unable to fetch transaction: " + e.getMessage(), e);
+        }
     }
 
-    // UPDATE (Same as create with existing ID)
-    public void updateTransaction(String indexName, String id, Map<String, Object> updatedFields) throws IOException {
-        UpdateRequest updateRequest = new UpdateRequest(indexName, id).doc(updatedFields);
-        client.update(updateRequest, RequestOptions.DEFAULT);
+    // UPDATE
+    public void updateTransaction(String indexName, String id, TransactionIndexDTO updatedDto) {
+        try {
+            client.update(u -> u
+                            .index(indexName)
+                            .id(id)
+                            .doc(updatedDto),
+                    TransactionIndexDTO.class);
+        } catch (ElasticsearchException | IOException e) {
+            throw new RuntimeException("Unable to update transaction: " + e.getMessage(), e);
+        }
     }
 
     // DELETE
-    public void deleteTransaction(String indexName, String id) throws IOException {
-        DeleteRequest deleteRequest = new DeleteRequest(indexName, id);
-        client.delete(deleteRequest, RequestOptions.DEFAULT);
+    public void deleteTransaction(String indexName, String id) {
+        try {
+            client.delete(DeleteRequest.of(d -> d
+                    .index(indexName)
+                    .id(id)
+            ));
+        } catch (ElasticsearchException | IOException e) {
+            throw new RuntimeException("Unable to delete transaction: " + e.getMessage(), e);
+        }
     }
 
-    public static String getIndexNameFromId(int userId){
+    public static String getIndexNameFromId(int userId) {
         return SearchConstants.TRANSACTION_INDEX_NAME_PREFIX + userId;
     }
-
 }

@@ -61,6 +61,13 @@
 			<version>7.17.16</version>
 		</dependency>
 		<dependency>
+			<groupId>co.elastic.clients</groupId>
+			<artifactId>elasticsearch-java</artifactId>
+			<version>8.15.0</version>
+		</dependency>
+
+
+		<dependency>
 			<groupId>org.elasticsearch</groupId>
 			<artifactId>elasticsearch</artifactId>
 			<version>7.17.16</version>

@@ -20,11 +20,12 @@ public class TransactionService {
     public ResponseEntity<String> createTransaction(Transaction transaction) {
         try {
             transactionRepository.save(transaction);
-            return new ResponseEntity<>("Transaction Created Successfully", HttpStatus.CREATED);
+
         } catch (Exception e) {
-            e.printStackTrace();
+            return new ResponseEntity<>("Unable to create transaction : " + e.getMessage() , HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>("Transaction Created Successfully", HttpStatus.CREATED);
     }
 
     public ResponseEntity<List<Transaction>> getTransactionsByUserId(int userId) {

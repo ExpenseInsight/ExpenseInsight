@@ -39,7 +39,7 @@ public class FilterSearch {
 
         ResponseEntity<Filter> response = filterController.getFilterById(id);
         if (response.getStatusCode() == HttpStatus.NOT_FOUND) {
-            return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<String>("Provided Invalid FilterId : " + id, HttpStatus.NOT_FOUND);
         }
 
         Filter filter = response.getBody();

@@ -79,7 +79,6 @@ public class Transaction {
         this.updatedAt = new Date();
     }
 
-    @PastOrPresent
     protected String description;
 
     @PreUpdate

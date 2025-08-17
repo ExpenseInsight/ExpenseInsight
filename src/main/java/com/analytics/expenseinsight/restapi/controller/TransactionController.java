@@ -5,6 +5,7 @@ import com.analytics.expenseinsight.indexing.service.transaction.TransactionInde
 import com.analytics.expenseinsight.restapi.model.Transaction;
 import com.analytics.expenseinsight.restapi.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,12 @@ public class TransactionController {
     @PostMapping("create")
     public ResponseEntity<String> createTransaction(@RequestBody Transaction transaction) throws IOException {
         TransactionIndexDTO dto = new TransactionIndexDTO(transaction);
-        transactionIndexService.addTransaction(dto);
+        try {
+            transactionIndexService.addTransaction(dto);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Transaction Not added to Index " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
         return transactionService.createTransaction(transaction);
     }
 

@@ -12,6 +12,7 @@ import java.util.List;
 @Data
 public class TransactionIndexDTO {
     private int id;
+    private int userId;
     private String paymentType;
     private String recipientName;
     private BigDecimal amount;
@@ -22,6 +23,7 @@ public class TransactionIndexDTO {
 
     public TransactionIndexDTO (Transaction transaction){
         this.id = transaction.getTransactionId();
+        this.userId = transaction.getUser().getUserId();
         this.paymentType = transaction.getPaymentType().name();
         this.recipientName = transaction.getRecipientName();
         this.amount = transaction.getAmount();
