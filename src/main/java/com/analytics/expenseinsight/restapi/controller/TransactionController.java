@@ -26,7 +26,7 @@ public class TransactionController {
     public ResponseEntity<String> createTransaction(@RequestBody Transaction transaction) throws IOException {
         TransactionIndexDTO dto = new TransactionIndexDTO(transaction);
         try {
-            transactionIndexService.addTransaction(dto);
+            transactionIndexService.indexTransaction(dto);
         } catch (Exception e) {
             return new ResponseEntity<>("Transaction Not added to Index " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

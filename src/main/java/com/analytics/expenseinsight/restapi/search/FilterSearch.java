@@ -5,7 +5,6 @@ import com.analytics.expenseinsight.indexing.service.transaction.TransactionInde
 import com.analytics.expenseinsight.indexing.service.transaction.TransactionSearchService;
 import com.analytics.expenseinsight.restapi.controller.FilterController;
 import com.analytics.expenseinsight.restapi.model.Filter;
-import org.elasticsearch.action.search.SearchResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,12 +44,11 @@ public class FilterSearch {
         Filter filter = response.getBody();
 
         int userId = filter.getUser().getUserId();
-        String indexName = TransactionIndexService.getIndexNameFromId(userId);
+        String indexName = TransactionIndexService.getIndexName(userId);
 
         List<String> tagList = TransactionIndexDTO.getTagsList(filter.getIncludeTags());
 
-        SearchResponse searchResponse = transactionSearchService.combinedSearch(indexName,tagList,
-                filter.getPaymentType(),getFormatedDate(filter.getStartDate()),getFormatedDate(filter.getEndDate()),filter.getMinAmount(),filter.getMaxAmount());
-        return new ResponseEntity<SearchResponse>(searchResponse,HttpStatus.OK);
+        List<TransactionIndexDTO> searchResponse = transactionSearchService.filterByStatus(filter.getUser().getUserId(),"COMPLETED");
+        return new ResponseEntity<>(searchResponse,HttpStatus.OK);
     }
 }
